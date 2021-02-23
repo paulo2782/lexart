@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+	<head>
+		<!-- Required meta tags -->
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+		<title>LEXART - Avaliação</title>
+
+		<!-- Bootstrap CSS -->
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+	</head>
+	<body>
+ 	<div class="container">
+	  <div class="row">
+		<div class="col-lg-3 col-sm-3">
+ 			<select class="form-control Search-Engine" id="Search-Engine" data-style="btn-primary" style="background: #4F4F4F;color:#F5F5F5">
+ 				<option value="0">Web</option>
+				<option value="1">Todas</option>
+ 				<option value="2">Mercado Livre</option>
+ 				<option value="3">Buscapé</option>
+ 			</select>
+		</div>
+	
+		<div class="col-lg-3 col-sm-3"> 
+	 		<select class="form-control category" data-style="btn-primary" style="background: #4F4F4F;color:#F5F5F5">
+	 			<option value="0">Categoria</option>
+	 			<option value="MLB40272">Geladeira</option>
+	 			<option value="MLB1002">TV</option>
+	 			<option value="MLB1055">Celular</option>
+	 		</select>
+	 	</div>
+		<div class="col-lg-3 col-sm-3">
+			<input type="text" name="search" class="form-control" id="description" placeholder="O que você procura?">
+		</div>
+		<div class="col-lg-3 col-sm-3">
+			<button class="btn btn-info" class="form-control" id="btnSearch"> Search </button>
+		</div>
+	  </div>
+
+	  <div id="details">
+	  	<ul class="list-unstyled">
+	  		<li class="product"></li>
+	  	</ul>
+	  </div>	
+
+		<!-- Optional JavaScript -->
+		<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+		<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+		<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script></body>
+</html>
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+
+$(function() {
+	var aID = [];	
+	var desc= [];
+	var limit = 49;
+
+	$('#btnSearch').click(function(event) {
+		var category    = $('.category').val();
+		var search      = $('.Search-Engine').val();
+		var description = $('#description').val(); 
+		var web = $('#Search-Engine').val();
+ 
+ 		switch(category){
+		  case 'MLB40272':
+		    nameCategory = 'Geladeira';
+		    break;
+		  case 'MLB1002':
+		    nameCategory = 'Tv';
+		    break;
+		  case 'MLB1055':
+		    nameCategory = 'Celular';
+ 		    break;
+		}
+		switch(web){
+		  case '0':
+		  	alert('Selecione WEB')
+		  	return false
+		  case '3':
+		  	alert('API NÃO ENCONTRADA NA WEB')
+		  	return false
+
+		}
+		switch(category){
+		  case '0':
+		  	alert('Selecione Categoria')
+		  	return false
+		}
+
+		// Requisição Mercado Livre
+
+		var settings = {
+		  "url": ' https://api.mercadolibre.com/sites/MLB/search?category='+category+'&q='+description+'', 
+		  "method": "GET",
+		  "timeout": 0,
+		};
+
+		
+		$.ajax(settings).done(function (response) { 
+			var total = response.paging.total;
+		  	var obj   = response.results;
+		  	
+			$('.list-unstyled').html('');
+			
+			if(total == 0){
+				$('.list-unstyled').html('<h3>NENHUM REGISTRO ENCONTRADO</h3>')	
+			}
+
+			Object.keys(obj).forEach(function(key) {
+				 
+				id    = obj[key].id;
+			
+				aID.push(id);
+
+				image = obj[key].thumbnail;
+				title = obj[key].title;			 
+				price = obj[key].price;
+ 				link  = obj[key].permalink;
+				 
+	 			$('.list-unstyled').append(`
+	 				<div class="row">
+					<div class="col-lg-12">&nbsp</div>
+	 				<div class="col-lg-2">
+						<li>
+						 	<img src=`+image+`  
+						  	class="img-fluid img-thumbnail" 
+						  	alt=`+image+`
+						  	title=`+title+` 
+						  	width="150" height="150">
+						</li>
+					</div>
+	 				<div class="col-lg-8">					
+						<li> <h5> `+title+` </h5> <strong> Categoria: `+nameCategory+` </strong> </li>
+							<p class="description" id='`+key+`'> </p>
+						<h5> 
+							Preço: <strong>`+price.toFixed(2)+`</strong>
+						</h5>
+					</div>	
+	 				<div class="col-lg-2">					
+	 					<a href=`+link+` target='_blank'> 
+	 						<input type='button' class="btn btn-info" value="Ir a web">
+	 					</a>
+					</div>	
+
+					<div class="col-lg-12">&nbsp</div>
+					`
+				);
+			});
+
+			for(i = 0 ; i <= limit ; i++){
+				$.ajax({
+				  url: 'https://api.mercadolibre.com/items/'+aID[i]+'/description?api_version=2#json', 
+				  method: "GET",
+				  timeout: 0,
+				  success:function(response){
+	 				desc.push(response.plain_text);
+					for(i = 0 ; i <= limit ; i++){
+						$('#'+i).html(desc[i])
+					}
+				  }			 
+				})
+			}	
+		});
+	});
+});
+
+
+</script>
